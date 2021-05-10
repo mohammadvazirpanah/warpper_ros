@@ -15,18 +15,44 @@ using namespace sc_core;
 
 SC_MODULE(top) 
 {
-	
+	//std_msgs::String msg;
+	//sc_fifo_in <std_msgs::String> input;
+	//sc_fifo_in<int> input;
+	sc_fifo<int> output;
 
-	SC_CTOR(top) 
+	void listener()
+	{
 
-	{	
+		cout<<("InGet In\n");
 		int argc;
 		char **argv;
-		cout<<("top ctor\n");
 		ros::init(argc, argv, "listener");
 		ros::NodeHandle n;
- 		ros::Subscriber sub = n.subscribe("chatter", 1000, chatterCallback);
- 		ros::spin();
+		ros::Subscriber sub = n.subscribe("chatter", 1000, chatterCallback);
+		output.write(1);
+		ros::spin();
+
+		wait();
+		cout<<("InGet Out\n");
+
+	}
+
+	SC_CTOR(top) :output("out")
+
+	{	
+		cout<<("Start\n");
+
+		
+		//sensitive << output.data_read(); 
+
+		
+		cout<<("Top Ctor\n");
+
+		SC_THREAD(listener);
+		//sensitive << output.data_read_event(); 
+
+		
+ 		//void chatterCallback();
 	}
 
 };

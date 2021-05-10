@@ -20,10 +20,10 @@ SC_MODULE(top)
 		ros::init(argc, argv, "talker");
 		ros::NodeHandle n;
         ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
-        ros::Subscriber sub = n.subscribe("chatter", 1000, chatterCallback);
-        //ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter",5);
+        
         ros::Rate loop_rate(1);
         int count = 0;
+        //ros::spinOnce();
 
         while (ros::ok())
         {
@@ -42,6 +42,7 @@ SC_MODULE(top)
                 loop_rate.sleep();
                 
                 ++count;
+                //ros::spin();
         }		
 	}
 

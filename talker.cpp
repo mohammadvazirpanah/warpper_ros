@@ -1,37 +1,33 @@
-#include "ros/ros.h"
+#include <ros/ros.h>
 #include "std_msgs/String.h"
 #include <systemc>
-#include <sstream>
 #include "chattercallback.hpp"
+#include <iostream>
 
 using namespace std;
 using namespace sc_core;
 
-SC_MODULE(top) 
-
+SC_MODULE(talker) 
 {
 
-    void talker()
+
+    void publish()
 	{
-
-		cout<<("talker\n");
-		int argc;
-		char **argv;
-		ros::init(argc, argv, "talker");
+        cout<<("Start Publisher in Talker\n");
 		ros::NodeHandle n;
-        ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
-        
-        ros::Rate loop_rate(1);
+        ros::Publisher chatter_pub = n.advertise<std_msgs::String>("send", 1000);
+        ros::Rate loop_rate(0.1);
         int count = 0;
-        //ros::spinOnce();
 
-        while (ros::ok())
+       // while (ros::ok())
+        while (count<20)
+
         {
                 std_msgs::String msg;
 
                 std::stringstream ss;
 
-                ss << "hello world " << count;
+                ss << count;
             
                 msg.data = ss.str();
                 ROS_INFO("%s", msg.data.c_str());
@@ -40,30 +36,63 @@ SC_MODULE(top)
                 ros::spinOnce();
                 
                 loop_rate.sleep();
-                
+           
                 ++count;
-                //ros::spin();
+                wait(SC_ZERO_TIME);
+                 //cout<<"Passed spin"<<endl;
+                //wait(10, SC_MS);
         }		
+        
 	}
 
-    SC_CTOR(top)
-    {
-        cout<<("Start\n");
-        SC_THREAD(talker);
+	void subscribe()
+	{
+        cout<<("Start Subscriber in Talker\n");
+		ros::NodeHandle n;
+		ros::Subscriber sub ;
+		sub = n.subscribe("receive", 1000, chatterCallback);
+		//ros::master::V_TopicInfo master_topics;
+		//ros::master::getTopics(master_topics);
+        while (1)
 
-    }
+        {
+            wait(SC_ZERO_TIME);
+        }
+        
+		//ros::spin();
+        //n.shutdown();
+        //next_trigger(4, SC_NS);
+        //wait(SC_ZERO_TIME);
+	}
+
+	SC_CTOR(talker) 
+
+	{	
+		cout<<("Start CTOR Talker\n");
+
+        int argc;
+		char **argv;
+		ros::init(argc, argv, "talker");
+        
+        
+        SC_THREAD(publish);
+    
+        //sensitive << ;
+		SC_THREAD(subscribe);
+        
+		
+
+	}
 
 };
 
 int sc_main(int argc, char *argv[])
-
-
 {
-    top top1("top1");
+    talker talker1("talker");
 
     sc_start();
+	
         
     return 0;
 }
-
 

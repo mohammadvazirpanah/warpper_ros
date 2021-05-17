@@ -16,16 +16,16 @@ SC_MODULE(talker)
         cout<<("Start Publisher in Talker\n");
 		ros::NodeHandle n;
         ros::Publisher chatter_pub = n.advertise<std_msgs::String>("send", 1000);
-        ros::Rate loop_rate(0.1);
-        int count = 0;
+        ros::Rate loop_rate(1);
+        int count = 1;
 
-       // while (ros::ok())
-        while (count<20)
+
+        while (count<=20)
 
         {
                 std_msgs::String msg;
 
-                std::stringstream ss;
+                stringstream ss;
 
                 ss << count;
             
@@ -39,10 +39,8 @@ SC_MODULE(talker)
            
                 ++count;
                 wait(SC_ZERO_TIME);
-                 //cout<<"Passed spin"<<endl;
-                //wait(10, SC_MS);
         }		
-        
+       
 	}
 
 	void subscribe()
@@ -51,18 +49,15 @@ SC_MODULE(talker)
 		ros::NodeHandle n;
 		ros::Subscriber sub ;
 		sub = n.subscribe("receive", 1000, chatterCallback);
-		//ros::master::V_TopicInfo master_topics;
-		//ros::master::getTopics(master_topics);
+
         while (1)
 
-        {
+        {  
+            //ros::spinOnce();
             wait(SC_ZERO_TIME);
         }
-        
-		//ros::spin();
-        //n.shutdown();
-        //next_trigger(4, SC_NS);
-        //wait(SC_ZERO_TIME);
+    
+
 	}
 
 	SC_CTOR(talker) 
@@ -76,8 +71,6 @@ SC_MODULE(talker)
         
         
         SC_THREAD(publish);
-    
-        //sensitive << ;
 		SC_THREAD(subscribe);
         
 		
@@ -91,8 +84,7 @@ int sc_main(int argc, char *argv[])
     talker talker1("talker");
 
     sc_start();
-	
-        
+
     return 0;
 }
 
